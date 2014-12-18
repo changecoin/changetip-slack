@@ -1,0 +1,4 @@
+Django==1.7.1
+changetip==0.1.1
+requests==2.5.0
+uWSGI==2.0.8
