@@ -21,7 +21,19 @@ def command_webhook(request):
 
     tippee = mentions[0] # TODO
 
-    # TOO Submit the tip
+    # Submit the tip
+    tip_data = {
+        "sender": request.POST.get("user_name"),
+        "receiver": tippee,
+        "message": text,
+        "context_uid": bot.unique_id(request.POST.copy()),
+        "meta": {}
+    }
+    for meta_field in ["token", "team_id", "channel_id", "channel_name", "user_id", "user_name", "command"]:
+        tip_data["meta"][meta_field] = request.POST.get(meta_field)
+
+    if not request.POST.get("noop"):
+        bot.handle_tip(**tip_data)
 
     return HttpResponse("hi, @%s" % tippee)
 
