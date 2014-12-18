@@ -35,6 +35,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
 )
 
 ROOT_URLCONF = 'slack.urls'
