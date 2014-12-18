@@ -3,10 +3,10 @@ from django.test import TestCase, Client
 
 class TestTipWebHook(TestCase):
 
-    def test_redirects(self):
+    def test_others(self):
         c = Client()
-        self.assertEqual(c.get("/").status_code, 301)
-        self.assertEqual(c.get("/bob").status_code, 301)
+        self.assertEqual(c.get("/").status_code, 200)
+        self.assertEqual(c.get("/bob").status_code, 404)
 
     def test_tip(self):
         post_data = {
@@ -20,13 +20,13 @@ class TestTipWebHook(TestCase):
             "text": "no text"
         }
         c = Client()
-        self.assertEqual(c.get("/command-webhook").status_code, 405)
+        self.assertEqual(c.get("/slack/command-webhook").status_code, 405)
 
-        response = c.post("/command-webhook", post_data)
+        response = c.post("/slack/command-webhook", post_data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(str(response.content).find("Usage"))
 
         post_data["text"] = "@tippee $1"
-        response = c.post("/command-webhook", post_data)
+        response = c.post("/slack/command-webhook", post_data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(str(response.content).find("Hi"))

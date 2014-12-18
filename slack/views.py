@@ -24,3 +24,7 @@ def command_webhook(request):
     # TOO Submit the tip
 
     return HttpResponse("hi, @%s" % tippee)
+
+
+def home(request):
+    return HttpResponse("OK")
