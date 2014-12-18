@@ -1,0 +1,3 @@
+test:
+    override:
+        - python manage.py test slack/tests/
