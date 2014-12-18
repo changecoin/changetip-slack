@@ -4,4 +4,4 @@ machine:
 
 test:
     override:
-        - python manage.py test slack/tests/
+        - python3 manage.py test slack/tests/
