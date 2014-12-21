@@ -1,4 +1,4 @@
 Django==1.7.1
-changetip==0.2.0
+changetip==0.3.0
 requests==2.5.0
 uWSGI==2.0.8

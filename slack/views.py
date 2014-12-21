@@ -33,7 +33,7 @@ def command_webhook(request):
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
     if not request.POST.get("noop"):
-        bot.handle_tip(**tip_data)
+        bot.send_tip(**tip_data)
 
     return HttpResponse("hi, @%s" % tippee)
 
