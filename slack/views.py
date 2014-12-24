@@ -1,6 +1,7 @@
 from bot import SlackBot
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
+import json
 
 
 @require_POST
@@ -33,9 +34,12 @@ def command_webhook(request):
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
     if not request.POST.get("noop"):
-        bot.send_tip(**tip_data)
+        response = bot.send_tip(**tip_data)
+        out = "```\n%s\n```" % json.dumps(response)
+    else:
+        out = "Hi!"
 
-    return HttpResponse("hi, @%s" % tippee)
+    return HttpResponse(out)
 
 
 def home(request):

@@ -2,7 +2,7 @@ machine:
     python:
         version: "3.4.1"
     environment:
-        CHANGETIP_API_KEY: "placeholder"
+        CHANGETIP_API_KEY: "fake_api_key"
 
 test:
     override:
