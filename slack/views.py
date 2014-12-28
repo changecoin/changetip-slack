@@ -38,7 +38,7 @@ def command_webhook(request):
     
     response = bot.send_tip(**tip_data)
     if response.get("error_code") == "invalid_sender":
-	return HttpResponse("To send your first tip, login with slack your slack account on ChangeTip: https://www.changetip.com/tip-online/slack")
+	return HttpResponse("To send your first tip, login with your slack account on ChangeTip: https://www.changetip.com/tip-online/slack")
 		
     out = "```\n%s\n```" % json.dumps(response)
 
