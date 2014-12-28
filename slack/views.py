@@ -33,11 +33,14 @@ def command_webhook(request):
     for meta_field in ["token", "team_id", "channel_id", "channel_name", "user_id", "user_name", "command"]:
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
-    if not request.POST.get("noop"):
-        response = bot.send_tip(**tip_data)
-        out = "```\n%s\n```" % json.dumps(response)
-    else:
-        out = "Hi!"
+    if request.POST.get("noop"):
+	return HttpResponse("Hi!")
+    
+    response = bot.send_tip(**tip_data)
+    if response.get("error_code") == "invalid_sender":
+	return HttpResponse("To send your first tip, login with slack your slack account on ChangeTip: https://www.changetip.com/tip-online/slack")
+		
+    out = "```\n%s\n```" % json.dumps(response)
 
     return HttpResponse(out)
 
