@@ -41,7 +41,7 @@ def command_webhook(request):
     team_domain = request.POST.get("team_domain")
     tip_data = {
         "sender": "%s@%s" % (slack_sender.name, team_domain),
-        "sender": "%s@%s" % (slack_receiver.name, team_domain),
+        "receiver": "%s@%s" % (slack_receiver.name, team_domain),
         "message": text,
         "context_uid": bot.unique_id(request.POST.copy()),
         "meta": {}
