@@ -11,6 +11,7 @@ def command_webhook(request):
     """
     Handle data from a webhook
     """
+    print json.dumps(request.POST.copy(), indent=2)
     # Do we have this user?
     slack_sender, created = SlackUser.objects.get_or_create(
         name=request.POST.get("user_name"),
