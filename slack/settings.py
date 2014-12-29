@@ -20,17 +20,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'ty9l!0q22*v(lo)9w*p#!iwbh4x3qz-1%^ixu1uz66y!bnykdv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
+    'slack'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -48,8 +49,12 @@ WSGI_APPLICATION = 'slack.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'bots',
+        'USER': os.getenv('MYSQL_USER', 'root'),
+        'PASSWORD': os.getenv('MYSQL_PASS', ''),
+        'HOST': os.getenv('MYSQL_HOST', 'localhost'),
+        'PORT': '3306',
     }
 }
 
