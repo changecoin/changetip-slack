@@ -1,7 +1,8 @@
 from bot import SlackBot
-from slack.models import SlackUser
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
+from slack.models import SlackUser
+import cleverbot
 import json
 
 
@@ -26,7 +27,10 @@ def command_webhook(request):
     # Check for mention
     mentions = bot.get_mentions(text)
     if len(mentions) != 1:
-        return HttpResponse("something clever")
+        # Say something clever
+        cb = cleverbot.Cleverbot()
+        response = cb.ask(text.replace('changetip', ''))
+        return HttpResponse(response)
 
     tippee = mentions[0] # TODO - what if multiple?
 
