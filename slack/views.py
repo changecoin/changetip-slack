@@ -36,7 +36,7 @@ def command_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, name=tippee).first()
     if not slack_receiver:
-        return JsonResponse({"text": "I don't know who @%s is. Please introduce yourself."})
+        return JsonResponse({"text": "I don't know who @%s is. Please introduce yourself." % tippee})
 
     # Submit the tip
     tip_data = {
