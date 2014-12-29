@@ -37,7 +37,7 @@ def command_webhook(request):
         return JsonResponse({"text": "I don't know who that person is. They should say hi."})
 
     # Substitute the @username back in
-    text = text.replace(mention_match.group(1), '@%s' % slack_receiver.name)
+    text = text.replace(mention_match.group(0), '@%s' % slack_receiver.name)
 
     # Submit the tip
     bot = SlackBot()
