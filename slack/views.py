@@ -1,4 +1,5 @@
 from bot import SlackBot
+from slack.models import SlackUser
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 import json
@@ -7,10 +8,17 @@ import json
 @require_POST
 def command_webhook(request):
     """
-    Handle data when people issue a /tip command
-    https://changecoin.slack.com/services/3245626184?added=1
+    Handle data from a webhook
     """
-    usage = "Usage: /tip @tippee $amount"
+    # Do we have this user?
+    slack_sender, created = SlackUser.objects.get_or_create(
+        name=request.POST.get("user_name"),
+        team_id=request.POST.get("team_id"),
+        user_id=request.POST.get("user_id"),
+    )
+    if created:
+        return HttpResponse("Nice to meet you!")
+
     text = request.POST.get("text", "")
 
     bot = SlackBot()
@@ -18,14 +26,18 @@ def command_webhook(request):
     # Check for mention
     mentions = bot.get_mentions(text)
     if len(mentions) != 1:
-        return HttpResponse(usage)
+        return HttpResponse("something clever")
 
-    tippee = mentions[0] # TODO
+    tippee = mentions[0] # TODO - what if multiple?
+
+    slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, name=tippee).first()
+    if not slack_receiver:
+        return HttpResponse("I don't know who @%s is. Please introduce yourself.")
 
     # Submit the tip
     tip_data = {
-        "sender": request.POST.get("user_id"),
-        "receiver": tippee,
+        "sender": slack_sender.user_id,
+        "receiver": slack_receiver.user_id,
         "message": text,
         "context_uid": bot.unique_id(request.POST.copy()),
         "meta": {}
@@ -42,22 +54,20 @@ def command_webhook(request):
     if response.get("error_code") == "invalid_sender":
         out = "To send your first tip, login with your slack account on ChangeTip: %s" % info_url
     elif response.get("error_code") == "duplicate_context_uid":
-	out = "Duplicate tip"
+        out = "Duplicate tip"
     elif response.get("error_message"):
-	out = response.get("error_message")
+        out = response.get("error_message")
     elif response.get("state") in ["ok", "accepted"]:
         tip = response["tip"]
-	if tip["status"] == "out for delivery":
-            out += "The tip is out for delivery. %s needs to hook up their ChangeTip account to slack at %s" % (tippee, info_url)
-	elif tip["status"] == "finished":
+    if tip["status"] == "out for delivery":
+        out += "The tip is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tippee, info_url)
+    elif tip["status"] == "finished":
             out += "The tip has been delivered, %s has been added to %s's ChangeTip wallet." % (tip["amount_display"], tippee)
 
     if "+debug" in text:
-    	out += "\n```\n%s\n```" % json.dumps(response, indent=2)
+        out += "\n```\n%s\n```" % json.dumps(response, indent=2)
 
     return HttpResponse(out)
-
-
 
 
 def home(request):
