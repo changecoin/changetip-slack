@@ -24,7 +24,7 @@ def command_webhook(request):
 
     # Submit the tip
     tip_data = {
-        "sender": request.POST.get("user_name"),
+        "sender": request.POST.get("user_id"),
         "receiver": tippee,
         "message": text,
         "context_uid": bot.unique_id(request.POST.copy()),
@@ -37,12 +37,27 @@ def command_webhook(request):
         return HttpResponse("Hi!")
 
     response = bot.send_tip(**tip_data)
+    info_url = "https://www.changetip.com/tip-online/slack"
+    out = ""
     if response.get("error_code") == "invalid_sender":
-        return HttpResponse("To send your first tip, login with your slack account on ChangeTip: https://www.changetip.com/tip-online/slack")
+        out = "To send your first tip, login with your slack account on ChangeTip: %s" % info_url
+    elif response.get("error_code") == "duplicate_context_uid":
+	out = "Duplicate tip"
+    elif response.get("error_message"):
+	out = response.get("error_message")
+    elif response.get("state") in ["ok", "accepted"]:
+        tip = response["tip"]
+	if tip["status"] == "out for delivery":
+            out += "The tip is out for delivery. %s needs to hook up their ChangeTip account to slack at %s" % (tippee, info_url)
+	elif tip["status"] == "finished":
+            out += "The tip has been delivered, %s has been added to %s's ChangeTip wallet." % (tip["amount_display"], tippee)
 
-    out = "```\n%s\n```" % json.dumps(response)
+    if "+debug" in text:
+    	out += "\n```\n%s\n```" % json.dumps(response, indent=2)
 
     return HttpResponse(out)
+
+
 
 
 def home(request):
