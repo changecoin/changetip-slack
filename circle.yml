@@ -1,3 +1,8 @@
 machine:
     environment:
         CHANGETIP_API_KEY: "fake_api_key"
+
+test:
+    override:
+        - python manage.py migrate
+        - python manage.py test
