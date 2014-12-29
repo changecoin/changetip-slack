@@ -1,5 +1,5 @@
 from bot import SlackBot
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from slack.models import SlackUser
 import cleverbot
@@ -18,7 +18,7 @@ def command_webhook(request):
         user_id=request.POST.get("user_id"),
     )
     if created:
-        return HttpResponse("Nice to meet you!")
+        return JsonResponse({"text": "Nice to meet you!"})
 
     text = request.POST.get("text", "")
 
@@ -30,13 +30,13 @@ def command_webhook(request):
         # Say something clever
         cb = cleverbot.Cleverbot()
         response = cb.ask(text.replace('changetip', ''))
-        return HttpResponse(response)
+        return JsonResponse({"text": response})
 
     tippee = mentions[0] # TODO - what if multiple?
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, name=tippee).first()
     if not slack_receiver:
-        return HttpResponse("I don't know who @%s is. Please introduce yourself.")
+        return JsonResponse({"text": "I don't know who @%s is. Please introduce yourself."})
 
     # Submit the tip
     tip_data = {
@@ -50,7 +50,7 @@ def command_webhook(request):
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
     if request.POST.get("noop"):
-        return HttpResponse("Hi!")
+        return JsonResponse({"text": "Hi!"})
 
     response = bot.send_tip(**tip_data)
     info_url = "https://www.changetip.com/tip-online/slack"
@@ -71,7 +71,7 @@ def command_webhook(request):
     if "+debug" in text:
         out += "\n```\n%s\n```" % json.dumps(response, indent=2)
 
-    return HttpResponse(out)
+    return JsonResponse({"text": out})
 
 
 def home(request):
