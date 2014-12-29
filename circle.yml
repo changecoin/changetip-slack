@@ -2,6 +2,10 @@ machine:
     environment:
         CHANGETIP_API_KEY: "fake_api_key"
 
+database:
+    pre:
+        - mysql -u root -e "CREATE DATABASE bots"
+
 test:
     override:
         - python manage.py migrate
