@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from slack.models import SlackUser
 import cleverbot
 import json
+import re
 
 
 @require_POST
@@ -23,26 +24,24 @@ def command_webhook(request):
 
     text = request.POST.get("text", "")
 
-    bot = SlackBot()
-
-    # Check for mention
-    mentions = bot.get_mentions(text)
-    if len(mentions) != 1:
+    # Check for mention in the format of <@$userid>
+    mention_match = re.search('<@(U[A-Z0-9]+)>', text)
+    if not mention_match:
         # Say something clever
         cb = cleverbot.Cleverbot()
         response = cb.ask(text.replace('changetip', ''))
         return JsonResponse({"text": response})
 
-    tippee = mentions[0] # TODO - what if multiple?
-
-    slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, name=tippee).first()
+    slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": "I don't know who @%s is. Please introduce yourself." % tippee})
+        return JsonResponse({"text": "I don't know who that person is. They should say hi."})
 
     # Submit the tip
+    bot = SlackBot()
+    team_domain = request.POST.get("team_domain")
     tip_data = {
-        "sender": slack_sender.user_id,
-        "receiver": slack_receiver.user_id,
+        "sender": "%s@%s" % (slack_sender.name, team_domain),
+        "sender": "%s@%s" % (slack_receiver.name, team_domain),
         "message": text,
         "context_uid": bot.unique_id(request.POST.copy()),
         "meta": {}
@@ -65,9 +64,9 @@ def command_webhook(request):
     elif response.get("state") in ["ok", "accepted"]:
         tip = response["tip"]
     if tip["status"] == "out for delivery":
-        out += "The tip is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tippee, info_url)
+        out += "The tip is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tip["receiver"], info_url)
     elif tip["status"] == "finished":
-            out += "The tip has been delivered, %s has been added to %s's ChangeTip wallet." % (tip["amount_display"], tippee)
+            out += "The tip has been delivered, %s has been added to %s's ChangeTip wallet." % (tip["amount_display"], tip["receiver"])
 
     if "+debug" in text:
         out += "\n```\n%s\n```" % json.dumps(response, indent=2)
