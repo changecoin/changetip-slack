@@ -26,6 +26,11 @@ TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# Hack to get admin errors logged locally. You can override with your own
+ADMINS = (
+    ('Test Account', 'dev@console.com'),
+)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Application definition
 
