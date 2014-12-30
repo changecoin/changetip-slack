@@ -66,9 +66,9 @@ def command_webhook(request):
         out = response.get("error_message")
     elif response.get("state") in ["ok", "accepted"]:
         tip = response["tip"]
-    if tip["status"] == "out for delivery":
-        out += "The tip is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tip["receiver"], info_url)
-    elif tip["status"] == "finished":
+        if tip["status"] == "out for delivery":
+            out += "The tip is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tip["receiver"], info_url)
+        elif tip["status"] == "finished":
             out += "The tip has been delivered, %s has been added to %s's ChangeTip wallet." % (tip["amount_display"], tip["receiver"])
 
     if "+debug" in text:
