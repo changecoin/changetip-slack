@@ -5,7 +5,7 @@
 This repo is managed by the ChangeCoin (ChangeTip) team, but is open source for transparency and educational purposes. Pull requests welcomed!
 
 ## Tipping
-Type `changetip:` at the beginning of a message, then mention a @username and an amount.
+Type `changetip:` at the *beginning* of a message, then mention a @username and an amount.
 
 Examples:
 
@@ -20,6 +20,8 @@ changetip: Give @jim a high five for the great work he just did
 ```
 changetip: what is the answer to everything?
 ```
+
+Note: It only works in channels, not private chats.
 
 ## Slack setup
 To enable tipping in slack for your team, a couple of minutes of setup is required.
