@@ -12,6 +12,8 @@ def command_webhook(request):
     """
     Handle data from a webhook
     """
+    info_url = "https://www.changetip.com/tip-online/slack"
+    get_started = "To send your first tip, login with your slack account on ChangeTip: %s" % info_url
     print(json.dumps(request.POST.copy(), indent=2))
     # Do we have this user?
     slack_sender, created = SlackUser.objects.get_or_create(
@@ -20,7 +22,7 @@ def command_webhook(request):
         user_id=request.POST.get("user_id"),
     )
     if created:
-        return JsonResponse({"text": "Nice to meet you!"})
+        return JsonResponse({"text": "Nice to meet you! %s" % get_started})
 
     text = request.POST.get("text", "")
 
@@ -34,7 +36,7 @@ def command_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": "I don't know who that person is. They should say hi."})
+        return JsonResponse({"text": "I don't know who that person is. They should say hi to me."})
 
     # Substitute the @username back in
     text = text.replace(mention_match.group(0), '@%s' % slack_receiver.name)
@@ -56,18 +58,17 @@ def command_webhook(request):
         return JsonResponse({"text": "Hi!"})
 
     response = bot.send_tip(**tip_data)
-    info_url = "https://www.changetip.com/tip-online/slack"
     out = ""
     if response.get("error_code") == "invalid_sender":
-        out = "To send your first tip, login with your slack account on ChangeTip: %s" % info_url
+        out = get_started
     elif response.get("error_code") == "duplicate_context_uid":
-        out = "Duplicate tip"
+        out = "That looks like a duplicate tip"
     elif response.get("error_message"):
         out = response.get("error_message")
     elif response.get("state") in ["ok", "accepted"]:
         tip = response["tip"]
         if tip["status"] == "out for delivery":
-            out += "The tip is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tip["receiver"], info_url)
+            out += "The tip for %s is out for delivery. %s needs to collect by connecting their ChangeTip account to slack at %s" % (tip["amount_display"], tip["receiver"], info_url)
         elif tip["status"] == "finished":
             out += "The tip has been delivered, %s has been added to %s's ChangeTip wallet." % (tip["amount_display"], tip["receiver"])
 
