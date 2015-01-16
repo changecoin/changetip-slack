@@ -23,7 +23,7 @@ def command_webhook(request):
         user_id=request.POST.get("user_id"),
     )
     if created:
-        return JsonResponse({"text": "Nice to meet you, %s ! %s" % (user_name, get_started)})
+        return JsonResponse({"text": "Nice to meet you, %s! %s" % (user_name, get_started)})
 
     text = request.POST.get("text", "")
 
@@ -37,7 +37,7 @@ def command_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": "%s, I don't know who that person is yet. They should say hi to me so I know who they are." % user_name})
+        return JsonResponse({"text": "%s, I don't know who that person is yet. They should say hi to me before I give them money." % user_name})
 
     # Substitute the @username back in
     text = text.replace(mention_match.group(0), '@%s' % slack_receiver.name)
