@@ -16,13 +16,14 @@ def command_webhook(request):
     get_started = "To send your first tip, login with your slack account on ChangeTip: %s" % info_url
     print(json.dumps(request.POST.copy(), indent=2))
     # Do we have this user?
+    user_name = request.POST.get("user_name")
     slack_sender, created = SlackUser.objects.get_or_create(
-        name=request.POST.get("user_name"),
+        name=user_name,
         team_id=request.POST.get("team_id"),
         user_id=request.POST.get("user_id"),
     )
     if created:
-        return JsonResponse({"text": "Nice to meet you! %s" % get_started})
+        return JsonResponse({"text": "Nice to meet you, %s ! %s" % (user_name, get_started)})
 
     text = request.POST.get("text", "")
 
@@ -36,7 +37,7 @@ def command_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": "I don't know who that person is. They should say hi to me."})
+        return JsonResponse({"text": "%s, I don't know who that person is yet. They should say hi to me so I know who they are." % user_name})
 
     # Substitute the @username back in
     text = text.replace(mention_match.group(0), '@%s' % slack_receiver.name)
@@ -62,7 +63,7 @@ def command_webhook(request):
     if response.get("error_code") == "invalid_sender":
         out = get_started
     elif response.get("error_code") == "duplicate_context_uid":
-        out = "That looks like a duplicate tip"
+        out = "That looks like a duplicate tip."
     elif response.get("error_message"):
         out = response.get("error_message")
     elif response.get("state") in ["ok", "accepted"]:
