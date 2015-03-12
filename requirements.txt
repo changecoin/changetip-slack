@@ -4,3 +4,4 @@ cleverbot==0.1.3
 mysqlclient==1.3.4
 requests==2.5.0
 uWSGI==2.0.8
+pyflakes==0.8.1
