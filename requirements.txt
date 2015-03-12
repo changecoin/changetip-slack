@@ -1,3 +1,4 @@
+boto==2.29.1
 Django==1.7.1
 changetip==0.3.3
 cleverbot==0.1.3
