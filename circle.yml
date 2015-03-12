@@ -1,12 +1,15 @@
-machine:
-    environment:
-        CHANGETIP_API_KEY: "fake_api_key"
-
 database:
     pre:
         - mysql -u root -e "CREATE DATABASE bots"
 
 test:
     override:
+    	- ./lint.sh
         - python manage.py migrate
-        - python manage.py test
+        - python manage.py test -v 2
+
+deployment:
+    production:
+        branch: master
+        commands:
+            - python manage.py deploy
