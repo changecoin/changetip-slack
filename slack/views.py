@@ -105,7 +105,7 @@ def get_clever_response(user_id, text):
     if not cb:
         cb = cleverbot.Cleverbot()
     print cb.conversation
-    text = text.replace('changetip', '').strip('@: ')
+    text = re.sub('changetip', '', text, 1, re.I).strip('@: ')
     response = cb.ask(text)
     cache.set(cache_key, cb, 3600)
     return response
