@@ -1,4 +1,5 @@
 from bot import SlackBot
+from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from slack.models import SlackUser
@@ -31,6 +32,7 @@ def command_webhook(request):
     print(json.dumps(request.POST.copy(), indent=2))
     # Do we have this user?
     user_name = request.POST.get("user_name")
+    user_id = request.POST.get("user_id")
     slack_sender, created = SlackUser.objects.get_or_create(
         name=user_name,
         team_id=request.POST.get("team_id"),
@@ -49,8 +51,7 @@ def command_webhook(request):
             return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name)})
         else:
             # Say something clever
-            cb = cleverbot.Cleverbot()
-            response = cb.ask(text.replace('changetip', ''))
+            response = get_clever_response(user_id, text)
             return JsonResponse({"text": response, "username": "changetip-cleverbot"})
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
@@ -95,6 +96,19 @@ def command_webhook(request):
         out += "\n```\n%s\n```" % json.dumps(response, indent=2)
 
     return JsonResponse({"text": out})
+
+
+def get_clever_response(user_id, text):
+    # Remember conversations per user
+    cache_key = "clever_response:%s" % user_id
+    cb = cache.get(cache_key)
+    if not cb:
+        cb = cleverbot.Cleverbot()
+    print cb.conversation
+    text = text.replace('changetip', '').strip('@: ')
+    response = cb.ask(text)
+    cache.set(cache_key, cb, 3600)
+    return response
 
 
 def home(request):

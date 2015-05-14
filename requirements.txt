@@ -1,7 +1,7 @@
 boto==2.29.1
 Django==1.7.1
 changetip==0.3.3
-cleverbot==0.1.3
+-e git://github.com/changecoin/cleverbot.py.git@0b38bf290c2caf195a3e2cc607756936c9cde64e#egg=cleverbot
 mysqlclient==1.3.4
 requests==2.5.0
 uWSGI==2.0.8

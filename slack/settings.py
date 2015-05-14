@@ -32,6 +32,14 @@ ADMINS = (
 )
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
+    }
+}
+
 # Application definition
 
 INSTALLED_APPS = (
