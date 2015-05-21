@@ -115,7 +115,7 @@ def get_clever_response(user_id, text):
 
 
 def append_image_response(text, response):
-    image_response = ImageResponse().get_image_response(text)
+    image_response = ImageResponse().get_image_response(text, 1500000)
 
     if image_response[0]:
         response += " Plus %s #%s image: %s" % (image_response[1], image_response[0], image_response[2])
