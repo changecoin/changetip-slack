@@ -53,7 +53,8 @@ def command_webhook(request):
         else:
             # Say something clever
             response = get_clever_response(user_id, text)
-            return JsonResponse({"text": response, "username": "changetip-cleverbot"})
+            text = append_image_response(response)
+            return JsonResponse({"text": text, "username": "changetip-cleverbot"})
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
@@ -93,13 +94,10 @@ def command_webhook(request):
         elif tip["status"] == "finished":
             out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
 
+    out = append_image_response(out)
+
     if "+debug" in text:
         out += "\n```\n%s\n```" % json.dumps(response, indent=2)
-
-    image_response = ImageResponse().get_image_response(text)
-
-    if image_response[0]:
-        out += " Plus %s #%s image: %s" % (image_response[1], image_response[0], image_response[2])
 
     return JsonResponse({"text": out})
 
@@ -114,6 +112,14 @@ def get_clever_response(user_id, text):
     response = cb.ask(text)
     cache.set(cache_key, cb, 3600)
     return response
+
+
+def append_image_response(text):
+    image_response = ImageResponse().get_image_response(text)
+
+    if image_response[0]:
+        text += " Plus %s #%s image: %s" % (image_response[1], image_response[0], image_response[2])
+    return text
 
 
 def home(request):
