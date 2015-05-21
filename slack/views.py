@@ -3,6 +3,7 @@ from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from slack.models import SlackUser
+from image_response import ImageResponse
 import cleverbot
 import json
 import re
@@ -95,6 +96,11 @@ def command_webhook(request):
     if "+debug" in text:
         out += "\n```\n%s\n```" % json.dumps(response, indent=2)
 
+    image_response = ImageResponse().get_image_response(text)
+
+    if image_response[0]:
+        out += " Plus %s #%s image: %s" % (image_response[1], image_response[0], image_response[2])
+
     return JsonResponse({"text": out})
 
 
@@ -104,7 +110,6 @@ def get_clever_response(user_id, text):
     cb = cache.get(cache_key)
     if not cb:
         cb = cleverbot.Cleverbot()
-    print cb.conversation
     text = re.sub('changetip', '', text, 1, re.I).strip('@: ')
     response = cb.ask(text)
     cache.set(cache_key, cb, 3600)
