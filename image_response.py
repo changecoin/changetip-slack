@@ -29,6 +29,7 @@ IMAGE_RESPONSE_HASHTAGS = [
     "hungry",
     "hug",
     "inspired",
+    "khan",
     "kiss",
     "laughing",
     "lol",
