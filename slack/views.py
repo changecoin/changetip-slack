@@ -44,7 +44,7 @@ def command_webhook(request):
 
     text = request.POST.get("text", "")
 
-    # Check for mention in the format of <@$userid>
+    # Check for mention in the format of <@$userid> (only grab first)
     mention_match = re.search('<@(U[A-Z0-9]+)>', text)
     if not mention_match:
         # Do they want help?
@@ -60,8 +60,15 @@ def command_webhook(request):
     if not slack_receiver:
         return JsonResponse({"text": MESSAGES["unknown_receiver"].format(user_name=user_name)})
 
-    # Substitute the @username back in
-    text = text.replace(mention_match.group(0), '@%s' % slack_receiver.name)
+    # Substitute the @username back in (for each mention)
+    for at_user_id in re.findall('(<@U[A-Z0-9]+>)', text):
+        user_id = re.search('<@(U[A-Z0-9]+)>', at_user_id)
+        if not user_id:
+            continue
+        user_name = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=user_id).first()
+        if not user_name:
+            continue
+        text = text.replace(at_user_id, '@%s' % user_name)
 
     # Submit the tip
     bot = SlackBot()
