@@ -62,13 +62,16 @@ def command_webhook(request):
 
     # Substitute the @username back in (for each mention)
     for at_user_id in re.findall('(<@U[A-Z0-9]+>)', text):
-        user_id = re.search('<@(U[A-Z0-9]+)>', at_user_id)
+        user_id_match = re.search('<@(U[A-Z0-9]+)>', at_user_id)
+        if not user_id_match:
+            continue
+        user_id = user_id_match.group(1)
         if not user_id:
             continue
-        user_name = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=user_id).first()
-        if not user_name:
+        slack_user = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=user_id).first()
+        if not slack_user:
             continue
-        text = text.replace(at_user_id, '@%s' % user_name)
+        text = text.replace(at_user_id, '@%s' % slack_user.name)
 
     # Submit the tip
     bot = SlackBot()
