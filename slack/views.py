@@ -17,9 +17,9 @@ You can also use a moniker for the amount, like `a beer` or `2 coffees`.
 Any questions? E-mail support@changetip.com
 """,
     "duplicate": "That looks like a duplicate tip.",
-    "greeting": "Nice to meet you, {user_name}, {get_started}",
+    "greeting": "Hi, {user_name}! {get_started}",
     "get_started": "To send your first tip, login with your slack account on ChangeTip: {info_url}".format(info_url=INFO_URL),
-    "unknown_receiver": "@{user_name}, I don't know who that person is yet. They should say *hi* to me before I give them money.",
+    "unknown_receiver": "@{user_name}, before they can receive your tip, ask them to type: *changetip: accept*",
     "out_for_delivery": "The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
     "finished": "The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet."
 }
