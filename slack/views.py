@@ -96,7 +96,10 @@ def command_webhook(request):
     elif response.get("error_code") == "duplicate_context_uid":
         out = MESSAGES["duplicate"]
     elif response.get("error_message"):
-        out = response.get("error_message")
+        if response.get("error_code") in ["tip_limit", "wallet_error", "pocket_error"]:
+            out = "This tip cannot be completed"
+        else:
+            out = response.get("error_message")
     elif response.get("state") in ["ok", "accepted"]:
         tip = response["tip"]
         if tip["status"] == "out for delivery":
