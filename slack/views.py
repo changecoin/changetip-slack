@@ -89,8 +89,6 @@ def command_webhook(request):
     if request.POST.get("noop"):
         return JsonResponse({"text": "Hi!"})
     try:
-        if "+test" in text:
-            return JsonResponse({"text": "Got to sending the tip"})
         response = bot.send_tip(**tip_data)
         if "+test" in text:
             return JsonResponse({"text": "sent the tip"})
