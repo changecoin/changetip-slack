@@ -114,7 +114,8 @@ def command_webhook(request):
         if "+debug" in text:
             out += "\n```\n%s\n```" % json.dumps(response, indent=2)
     except Exception as e:
-        return JsonResponse({"text": "output formatting error with: {}".format(e)})
+        if "+debug" in text:
+            return JsonResponse({"text": "output formatting error with: {}".format(e)})
 
     return JsonResponse({"text": out})
 
