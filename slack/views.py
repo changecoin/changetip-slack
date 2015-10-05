@@ -89,11 +89,13 @@ def command_webhook(request):
     if request.POST.get("noop"):
         return JsonResponse({"text": "Hi!"})
     try:
-        response = bot.send_tip(**tip_data)
         if "+test" in text:
             return JsonResponse({"text": "Got to sending the tip"})
+        response = bot.send_tip(**tip_data)
+        if "+test" in text:
+            return JsonResponse({"text": "sent the tip"})
     except Exception as e:
-        return JsonResponse({"text": "Threw error in send_tip: {}".format(e)})
+        return JsonResponse({"text": "Threw error in send_tip"})
 
     out = ""
     if response.get("error_code") == "invalid_sender":
