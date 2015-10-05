@@ -90,6 +90,8 @@ def command_webhook(request):
         return JsonResponse({"text": "Hi!"})
     try:
         response = bot.send_tip(**tip_data)
+        if "+test" in text:
+            return JsonResponse({"text": "Got to sending the tip"})
     except Exception as e:
         return JsonResponse({"text": "Threw error in send_tip: {}".format(e)})
 
