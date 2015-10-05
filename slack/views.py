@@ -90,30 +90,31 @@ def command_webhook(request):
         return JsonResponse({"text": "Hi!"})
 
     response = bot.send_tip(**tip_data)
-    if "+test" in text:
-        return JsonResponse({"text": "sent the tip {}".format(response)})
 
-    out = ""
-    if response.get("error_code") == "invalid_sender":
-        out = MESSAGES["get_started"]
-    elif response.get("error_code") == "duplicate_context_uid":
-        out = MESSAGES["duplicate"]
-    elif response.get("error_message"):
-        if response.get("error_code") in ["tip_limit", "wallet_error", "pocket_error"]:
-            out = "This tip cannot be completed"
-        else:
-            out = response.get("error_message")
-    elif response.get("state") in ["ok", "accepted"]:
-        tip = response["tip"]
-        if tip["status"] == "out for delivery":
-            out += MESSAGES["out_for_delivery"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
-        elif tip["status"] == "finished":
-            out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
+    try:
+        out = ""
+        if response.get("error_code") == "invalid_sender":
+            out = MESSAGES["get_started"]
+        elif response.get("error_code") == "duplicate_context_uid":
+            out = MESSAGES["duplicate"]
+        elif response.get("error_message"):
+            if response.get("error_code") in ["tip_limit", "wallet_error", "pocket_error"]:
+                out = "This tip cannot be completed"
+            else:
+                out = response.get("error_message")
+        elif response.get("state") in ["ok", "accepted"]:
+            tip = response["tip"]
+            if tip["status"] == "out for delivery":
+                out += MESSAGES["out_for_delivery"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
+            elif tip["status"] == "finished":
+                out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
 
-    out = append_image_response(text, out)
+        out = append_image_response(text, out)
 
-    if "+debug" in text:
-        out += "\n```\n%s\n```" % json.dumps(response, indent=2)
+        if "+debug" in text:
+            out += "\n```\n%s\n```" % json.dumps(response, indent=2)
+    except Exception as e:
+        return JsonResponse({"text": "output formatting error with: {}".format(e)})
 
     return JsonResponse({"text": out})
 
