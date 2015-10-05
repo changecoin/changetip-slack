@@ -10,18 +10,18 @@ import re
 
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 MESSAGES = {
-    "help": """Hi {user_name}. Here's some help.
+    "help": u"""Hi {user_name}. Here's some help.
 To send a tip, mention *a person* and *an amount* like this:
 `changetip: give @buddy $1`.
 You can also use a moniker for the amount, like `a beer` or `2 coffees`.
 Any questions? E-mail support@changetip.com
 """,
     "duplicate": "That looks like a duplicate tip.",
-    "greeting": "Hi, {user_name}! {get_started}",
-    "get_started": "To send your first tip, login with your slack account on ChangeTip: {info_url}".format(info_url=INFO_URL),
-    "unknown_receiver": "@{user_name}, before they can receive your tip, ask them to type: *changetip: accept*",
-    "out_for_delivery": "The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
-    "finished": "The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet."
+    "greeting": u"Hi, {user_name}! {get_started}",
+    "get_started": u"To send your first tip, login with your slack account on ChangeTip: {info_url}".format(info_url=INFO_URL),
+    "unknown_receiver": u"@{user_name}, before they can receive your tip, ask them to type: *changetip: accept*",
+    "out_for_delivery": u"The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
+    "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet."
 }
 
 
