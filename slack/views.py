@@ -21,7 +21,7 @@ Any questions? E-mail support@changetip.com
     "get_started": u"To send your first tip, login with your slack account on ChangeTip: {info_url}".format(info_url=INFO_URL),
     "unknown_receiver": u"@{user_name}, before they can receive your tip, ask them to type: *changetip: accept*",
     "out_for_delivery": u"The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
-    "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet."
+    "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet. {img_url}"
 }
 
 
@@ -104,10 +104,11 @@ def command_webhook(request):
                 out = response.get("error_message")
         elif response.get("state") in ["ok", "accepted"]:
             tip = response["tip"]
+
             if tip["status"] == "out for delivery":
                 out += MESSAGES["out_for_delivery"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
             elif tip["status"] == "finished":
-                out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
+                out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"], img_url=tip['meta'].get('tip_img_url', ''))
 
         out = append_image_response(text, out)
 
