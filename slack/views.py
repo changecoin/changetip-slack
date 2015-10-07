@@ -104,10 +104,11 @@ def command_webhook(request):
                 out = response.get("error_message")
         elif response.get("state") in ["ok", "accepted"]:
             tip = response["tip"]
+
             if tip["status"] == "out for delivery":
                 out += MESSAGES["out_for_delivery"].format(amount_display=tip["amount_display"], receiver=tip["receiver"])
             elif tip["status"] == "finished":
-                out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"], img_url=tip.meta.get('tip_img_url', ''))
+                out += MESSAGES["finished"].format(amount_display=tip["amount_display"], receiver=tip["receiver"], img_url=tip['meta'].get('tip_img_url', ''))
 
         out = append_image_response(text, out)
 
