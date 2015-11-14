@@ -39,6 +39,7 @@ def command_webhook(request):
         team_id=request.POST.get("team_id"),
         user_id=request.POST.get("user_id"),
     )
+
     if created:
         return JsonResponse({"text": MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"])})
 
@@ -51,10 +52,12 @@ def command_webhook(request):
         if "help" in text:
             return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name)})
         else:
-            # Say something clever
-            response = get_clever_response(user_id, text)
-            response = append_image_response(text, response)
-            return JsonResponse({"text": response, "username": "changetip-cleverbot"})
+            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name)})
+            # Temporarily commenting out the following because Cleverbot now has ads
+            # # Say something clever
+            # response = get_clever_response(user_id, text)
+            # response = append_image_response(text, response)
+            # return JsonResponse({"text": response, "username": "changetip-cleverbot"})
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
