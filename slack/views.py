@@ -40,8 +40,16 @@ def command_webhook(request):
         user_id=request.POST.get("user_id"),
     )
 
+    def formatted_response(response_text):
+        if request.POST.get("response_url", None):
+            # This is a slash command
+            return JsonResponse({"text": response_text, "response_type": "in_channel"})
+        else:
+            # This is an outgoing webhook
+            return JsonResponse({"text": response_text})
+
     if created:
-        return JsonResponse({"text": MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"])})
+        return formatted_response(MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"]))
 
     text = request.POST.get("text", "")
 
@@ -50,9 +58,9 @@ def command_webhook(request):
     if not mention_match:
         # Do they want help?
         if "help" in text:
-            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name)})
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
         else:
-            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name)})
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
             # Temporarily commenting out the following because Cleverbot now has ads
             # # Say something clever
             # response = get_clever_response(user_id, text)
@@ -61,7 +69,7 @@ def command_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": MESSAGES["unknown_receiver"].format(user_name=user_name)})
+        return formatted_response(MESSAGES["unknown_receiver"].format(user_name=user_name))
 
     # Substitute the @username back in (for each mention)
     for at_user_id in re.findall('(<@U[A-Z0-9]+>)', text):
@@ -90,7 +98,7 @@ def command_webhook(request):
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
     if request.POST.get("noop"):
-        return JsonResponse({"text": "Hi!"})
+        return formatted_response("Hi!")
 
     response = bot.send_tip(**tip_data)
 
@@ -119,9 +127,9 @@ def command_webhook(request):
             out += "\n```\n%s\n```" % json.dumps(response, indent=2)
     except Exception as e:
         if "+debug" in text:
-            return JsonResponse({"text": "output formatting error with: {}".format(e)})
+            return formatted_response("output formatting error with: {}".format(e))
 
-    return JsonResponse({"text": out})
+    return formatted_response(out)
 
 
 def get_clever_response(user_id, text):
