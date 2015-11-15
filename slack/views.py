@@ -11,7 +11,7 @@ import re
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 MESSAGES = {
     "help": u"""Hi {user_name}. Here's some help.
-To send a tip, mention *a person* and *an amount* like this:
+To send a tip, mention *changetip*, *a person* and *an amount* like this:
 `changetip: give @buddy $1`.
 You can also use a moniker for the amount, like `a beer` or `2 coffees`.
 Any questions? E-mail support@changetip.com
