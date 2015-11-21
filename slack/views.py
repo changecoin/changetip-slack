@@ -43,7 +43,53 @@ def command_webhook(request):
 
 
 def _slash_command(request):
-    return JsonResponse({"text": "Hi!"})
+    user_name = request.POST.get("user_name")
+
+    # TODO tagging for usernames
+    # Create SlackUser. This is used for tagging
+    SlackUser.objects.get_or_create(
+        name=user_name,
+        team_id=request.POST.get("team_id"),
+        user_id=request.POST.get("user_id"),
+    )
+
+    def formatted_response(response_text):
+        return JsonResponse({"text": response_text, "response_type": "in_channel"})
+
+    # return JsonResponse({"text": "???", "response_type": "in_channel"})
+
+    text = request.POST.get("text", "")
+
+    # Check for mention in the format of @userId123 (only grab first)
+    mention_match = re.search('@([A-Za-z0-9]+)', text)
+    if not mention_match:
+        # Do they want help?
+        if "help" in text:
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+        else:
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            # Temporarily commenting out the following because Cleverbot now has ads
+            # # Say something clever
+            # response = get_clever_response(user_id, text)
+            # response = append_image_response(text, response)
+            # return JsonResponse({"text": response, "username": "changetip-cleverbot"})
+    receiver = mention_match.group(1)
+
+    # Submit the tip
+    team_domain = request.POST.get("team_domain")
+    tip_data = {
+        "sender": "%s@%s" % (user_name, team_domain),
+        "receiver": "%s@%s" % (receiver, team_domain),
+        "message": text,
+        "context_uid": SlackBot().unique_id(request.POST.copy()),
+        "meta": {}
+    }
+    for meta_field in ["token", "team_id", "channel_id", "channel_name", "user_id", "user_name", "command"]:
+        tip_data["meta"][meta_field] = request.POST.get(meta_field)
+
+    out = submit_tip(tip_data)
+
+    return JsonResponse({"text": out})
 
 
 def _outgoing_webhook(request):
