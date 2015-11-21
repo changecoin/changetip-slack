@@ -11,7 +11,7 @@ import re
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 MESSAGES = {
     "help": u"""Hi {user_name}. Here's some help.
-To send a tip, mention *a person* and *an amount* like this:
+To send a tip, mention *changetip*, *a person* and *an amount* like this:
 `changetip: give @buddy $1`.
 You can also use a moniker for the amount, like `a beer` or `2 coffees`.
 Any questions? E-mail support@changetip.com
@@ -31,6 +31,66 @@ def command_webhook(request):
     Handle data from a webhook
     """
     print(json.dumps(request.POST.copy(), indent=2))
+
+    if request.POST.get("noop"):
+        return JsonResponse({"text": "Hi!"})
+
+    # Separated so we can still support the legacy webhook integration
+    if 'command' in request.POST.keys():
+        return _slash_command(request)
+    else:
+        return _outgoing_webhook(request)
+
+
+def _slash_command(request):
+    user_name = request.POST.get("user_name")
+
+    # TODO tagging for usernames
+    # Create SlackUser. This is used for tagging
+    SlackUser.objects.get_or_create(
+        name=user_name,
+        team_id=request.POST.get("team_id"),
+        user_id=request.POST.get("user_id"),
+    )
+
+    def formatted_response(response_text):
+        return JsonResponse({"text": response_text, "response_type": "in_channel"})
+
+    text = request.POST.get("text", "")
+
+    # Check for mention in the format of @userId123 (only grab first)
+    mention_match = re.search('@([A-Za-z0-9]+)', text)
+    if not mention_match:
+        # Do they want help?
+        if "help" in text:
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+        else:
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            # Temporarily commenting out the following because Cleverbot now has ads
+            # # Say something clever
+            # response = get_clever_response(user_id, text)
+            # response = append_image_response(text, response)
+            # return JsonResponse({"text": response, "username": "changetip-cleverbot"})
+    receiver = mention_match.group(1)
+
+    # Submit the tip
+    team_domain = request.POST.get("team_domain")
+    tip_data = {
+        "sender": "%s@%s" % (user_name, team_domain),
+        "receiver": "%s@%s" % (receiver, team_domain),
+        "message": text,
+        "context_uid": SlackBot().unique_id(request.POST.copy()),
+        "meta": {}
+    }
+    for meta_field in ["token", "team_id", "channel_id", "channel_name", "user_id", "user_name", "command"]:
+        tip_data["meta"][meta_field] = request.POST.get(meta_field)
+
+    out = submit_tip(tip_data)
+
+    return JsonResponse({"text": out})
+
+
+def _outgoing_webhook(request):
     # Do we have this user?
     user_name = request.POST.get("user_name")
     user_id = request.POST.get("user_id")
@@ -39,8 +99,20 @@ def command_webhook(request):
         team_id=request.POST.get("team_id"),
         user_id=request.POST.get("user_id"),
     )
+
+    def formatted_response(response_text):
+        """
+        Define a method to distinguish between webhook integrations (old) and slash commands (new)
+        """
+        if request.POST.get("response_url", None):
+            # This is a slash command
+            return JsonResponse({"text": response_text, "response_type": "in_channel"})
+        else:
+            # This is an outgoing webhook
+            return JsonResponse({"text": response_text})
+
     if created:
-        return JsonResponse({"text": MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"])})
+        return formatted_response(MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"]))
 
     text = request.POST.get("text", "")
 
@@ -49,16 +121,18 @@ def command_webhook(request):
     if not mention_match:
         # Do they want help?
         if "help" in text:
-            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name)})
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
         else:
-            # Say something clever
-            response = get_clever_response(user_id, text)
-            response = append_image_response(text, response)
-            return JsonResponse({"text": response, "username": "changetip-cleverbot"})
+            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            # Temporarily commenting out the following because Cleverbot now has ads
+            # # Say something clever
+            # response = get_clever_response(user_id, text)
+            # response = append_image_response(text, response)
+            # return JsonResponse({"text": response, "username": "changetip-cleverbot"})
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": MESSAGES["unknown_receiver"].format(user_name=user_name)})
+        return formatted_response(MESSAGES["unknown_receiver"].format(user_name=user_name))
 
     # Substitute the @username back in (for each mention)
     for at_user_id in re.findall('(<@U[A-Z0-9]+>)', text):
@@ -74,25 +148,34 @@ def command_webhook(request):
         text = text.replace(at_user_id, '@%s' % slack_user.name)
 
     # Submit the tip
-    bot = SlackBot()
     team_domain = request.POST.get("team_domain")
     tip_data = {
         "sender": "%s@%s" % (slack_sender.name, team_domain),
         "receiver": "%s@%s" % (slack_receiver.name, team_domain),
         "message": text,
-        "context_uid": bot.unique_id(request.POST.copy()),
+        "context_uid": SlackBot().unique_id(request.POST.copy()),
         "meta": {}
     }
     for meta_field in ["token", "team_id", "channel_id", "channel_name", "user_id", "user_name", "command"]:
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
-    if request.POST.get("noop"):
-        return JsonResponse({"text": "Hi!"})
+    out = submit_tip(tip_data)
 
+    return JsonResponse({"text": out})
+
+
+def submit_tip(tip_data):
+    """
+    Sends the tip to the Changecoin API and returns an output message
+    """
+
+    text = tip_data['message']
+    out = ""
+
+    bot = SlackBot()
     response = bot.send_tip(**tip_data)
 
     try:
-        out = ""
         if response.get("error_code") == "invalid_sender":
             out = MESSAGES["get_started"]
         elif response.get("error_code") == "duplicate_context_uid":
@@ -114,11 +197,12 @@ def command_webhook(request):
 
         if "+debug" in text:
             out += "\n```\n%s\n```" % json.dumps(response, indent=2)
+
     except Exception as e:
         if "+debug" in text:
-            return JsonResponse({"text": "output formatting error with: {}".format(e)})
+            return "output formatting error with: {}".format(e)
 
-    return JsonResponse({"text": out})
+    return out
 
 
 def get_clever_response(user_id, text):
