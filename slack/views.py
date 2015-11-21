@@ -56,8 +56,6 @@ def _slash_command(request):
     def formatted_response(response_text):
         return JsonResponse({"text": response_text, "response_type": "in_channel"})
 
-    # return JsonResponse({"text": "???", "response_type": "in_channel"})
-
     text = request.POST.get("text", "")
 
     # Check for mention in the format of @userId123 (only grab first)
