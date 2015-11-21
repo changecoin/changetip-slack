@@ -53,9 +53,6 @@ def _slash_command(request):
         user_id=request.POST.get("user_id"),
     )
 
-    def formatted_response(response_text):
-        return JsonResponse({"text": response_text, "response_type": "in_channel"})
-
     text = request.POST.get("text", "")
 
     # Check for mention in the format of @userId123 (only grab first)
@@ -63,9 +60,9 @@ def _slash_command(request):
     if not mention_match:
         # Do they want help?
         if "help" in text:
-            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
         else:
-            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
             # Temporarily commenting out the following because Cleverbot now has ads
             # # Say something clever
             # response = get_clever_response(user_id, text)
@@ -87,7 +84,7 @@ def _slash_command(request):
 
     out = submit_tip(tip_data)
 
-    return JsonResponse({"text": out})
+    return JsonResponse({"text": out, "response_type": "in_channel"})
 
 
 def _outgoing_webhook(request):
@@ -100,19 +97,8 @@ def _outgoing_webhook(request):
         user_id=request.POST.get("user_id"),
     )
 
-    def formatted_response(response_text):
-        """
-        Define a method to distinguish between webhook integrations (old) and slash commands (new)
-        """
-        if request.POST.get("response_url", None):
-            # This is a slash command
-            return JsonResponse({"text": response_text, "response_type": "in_channel"})
-        else:
-            # This is an outgoing webhook
-            return JsonResponse({"text": response_text})
-
     if created:
-        return formatted_response(MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"]))
+        return JsonResponse({"text": MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"]), "response_type": "in_channel"})
 
     text = request.POST.get("text", "")
 
@@ -121,9 +107,9 @@ def _outgoing_webhook(request):
     if not mention_match:
         # Do they want help?
         if "help" in text:
-            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
         else:
-            return formatted_response(MESSAGES["help"].format(user_name=user_name))
+            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
             # Temporarily commenting out the following because Cleverbot now has ads
             # # Say something clever
             # response = get_clever_response(user_id, text)
@@ -132,7 +118,7 @@ def _outgoing_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return formatted_response(MESSAGES["unknown_receiver"].format(user_name=user_name))
+        return JsonResponse({"text": MESSAGES["unknown_receiver"].format(user_name=user_name), "response_type": "in_channel"})
 
     # Substitute the @username back in (for each mention)
     for at_user_id in re.findall('(<@U[A-Z0-9]+>)', text):
