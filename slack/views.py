@@ -11,6 +11,12 @@ import re
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 MESSAGES = {
     "help": u"""Hi {user_name}. Here's some help.
+To send a tip, mention *a person* and *an amount* like this:
+`/changetip: give @buddy $1`.
+You can also use a moniker for the amount, like `a beer` or `2 coffees`.
+Any questions? E-mail support@changetip.com
+""",
+    "help_webhooks": u"""Hi {user_name}. Here's some help.
 To send a tip, mention *changetip*, *a person* and *an amount* like this:
 `changetip: give @buddy $1`.
 You can also use a moniker for the amount, like `a beer` or `2 coffees`.
@@ -62,12 +68,12 @@ def _slash_command(request):
         if "help" in text:
             return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
         else:
-            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
             # Temporarily commenting out the following because Cleverbot now has ads
             # # Say something clever
             # response = get_clever_response(user_id, text)
             # response = append_image_response(text, response)
             # return JsonResponse({"text": response, "username": "changetip-cleverbot"})
+            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
     receiver = mention_match.group(1)
 
     # Submit the tip
@@ -107,9 +113,9 @@ def _outgoing_webhook(request):
     if not mention_match:
         # Do they want help?
         if "help" in text:
-            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
+            return JsonResponse({"text": MESSAGES["help_webhooks"].format(user_name=user_name), "response_type": "in_channel"})
         else:
-            return JsonResponse({"text": MESSAGES["help"].format(user_name=user_name), "response_type": "in_channel"})
+            return JsonResponse({"text": MESSAGES["help_webhooks"].format(user_name=user_name), "response_type": "in_channel"})
             # Temporarily commenting out the following because Cleverbot now has ads
             # # Say something clever
             # response = get_clever_response(user_id, text)
