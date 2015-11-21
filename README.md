@@ -41,7 +41,10 @@ ChangeTip will respond with instructions on how to hook up your ChangeTip accoun
 Note: It only works in channels, not private chats, this is because slack doesn't send data for private chats via the webhook.
 
 ## Slack setup
-To enable tipping in slack for your team, 94 seconds of setup is required. LIke this:
+
+<a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands&client_id=2661501386.15060437890"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
+
+To enable tipping in slack for your team, 94 seconds of setup is required. Like this:
 
 ##### Create a new outgoing webhook from:
 
