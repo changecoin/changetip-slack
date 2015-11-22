@@ -1,12 +1,14 @@
 from bot import SlackBot
 from django.core.cache import cache
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 from slack.models import SlackUser
 from image_response import ImageResponse
 import cleverbot
 import json
 import re
+import requests
+import os
 
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 MESSAGES = {
@@ -29,6 +31,18 @@ Any questions? E-mail support@changetip.com
     "out_for_delivery": u"The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
     "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet. {img_url}"
 }
+
+
+def slack_oauth(request):
+    client_id = os.getenv("CLIENT_ID", None)
+    client_secret = os.getenv("CLIENT_SECRET", None)
+    code = request.GET.get('code', None)
+
+    if not client_id or not client_secret or not code:
+        return HttpResponseBadRequest()
+
+    requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}".format(client_id, client_secret, code))
+    return HttpResponse("Success!")
 
 
 @require_POST
