@@ -42,34 +42,13 @@ Note: It only works in channels, not private chats, this is because slack doesn'
 
 ## Slack setup
 
-<a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands&client_id=2661501386.15060437890"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
+To enable tipping in slack for your team, 10 seconds of setup is required. Click this button:
 
-To enable tipping in slack for your team, 94 seconds of setup is required. Like this:
+<a href="https://slack.com/oauth/authorize?scope=commands&client_id=2661501386.15060437890"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
 
-##### Create a new outgoing webhook from:
-
-Go to https://yourdomain.slack.com/services/new/outgoing-webhook
-
-(replace *yourdomain* with your slack domain)
-
-Create a new "Outgoing Webhook".
-
-1. Leave the Channel to `Any`
-2. Set the Trigger Word to `changetip,@changetip`
-3. Set the URL to `https://bots.changetip.com/slack/command-webhook`
-
-Like this:
-
-![Slack Setup 1](https://cdn.changetip.com/img/screenshots/slack_setup_1.png?1 "Slack Setup 1")
-
-The descriptive label, name, and icon are up to you. If you'd like, you can use this icon https://cdn.changetip.com/img/logos/changetip_round_icon.png . 
-
-Note: it looks like there is a bug with slack where if you try to upload the icon while creating the webhook, you lose your data. Recommend you add the Icon after you save the webhook.
-
-![Slack Setup 2](https://cdn.changetip.com/img/screenshots/slack_setup_2.png?1 "Slack Setup 2")
+Select your team and authorize the request. It will ask for permission to confirm the identities of team members and install a Slack slash command.
 
 That's it! Start tipping! The bot will provide instructions with what to do. Don't be scared. :)
-
 
 ### Support
 
