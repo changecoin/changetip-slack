@@ -34,15 +34,20 @@ Any questions? E-mail support@changetip.com
 
 
 def slack_oauth(request):
-    client_id = os.getenv("CLIENT_ID", None)
-    client_secret = os.getenv("CLIENT_SECRET", None)
+    client_id = os.getenv("SLACK_CLIENT_ID", None)
+    client_secret = os.getenv("SLACK_CLIENT_SECRET", None)
     code = request.GET.get('code', None)
 
     if not client_id or not client_secret or not code:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Error")
 
-    requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}".format(client_id, client_secret, code))
-    return HttpResponse("Success!")
+    response = requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}".format(client_id, client_secret, code))
+
+    response = response.json()
+    if not response['ok'] or 'access_token' not in response:
+        return HttpResponseBadRequest("Error")
+
+    return HttpResponse("Success! You have now installed ChangeTip Slack.")
 
 
 @require_POST
