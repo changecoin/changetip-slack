@@ -90,6 +90,19 @@ This is a django app. It pulls in the [changetip python library](https://pypi.py
 $ pip install -r requirements.txt
 ```
 
+#### Configure the needed variables
+Register your application with Slack:
+https://api.slack.com/applications
+
+Set your Redirect URI to your local environment to enable OAuth. You will likely need to ngrok it.
+https://mylocaldevenv.io/slack/auth
+
+Set your environment variables:
+```
+export SLACK_CLIENT_ID=xxxx
+export SLACK_CLIENT_SECRET=xxxx
+```
+
 #### Running
 ```
 CHANGETIP_API_KEY=xxxx uwsgi --init uswgi.ini
