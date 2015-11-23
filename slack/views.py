@@ -1,5 +1,6 @@
 from bot import SlackBot
 from django.core.cache import cache
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 from slack.models import SlackUser
@@ -8,7 +9,6 @@ import cleverbot
 import json
 import re
 import requests
-import os
 
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 MESSAGES = {
@@ -34,8 +34,9 @@ Any questions? E-mail support@changetip.com
 
 
 def slack_oauth(request):
-    client_id = os.getenv("SLACK_CLIENT_ID", None)
-    client_secret = os.getenv("SLACK_CLIENT_SECRET", None)
+    client_id = settings.SLACK_CLIENT_ID
+    client_secret = settings.SLACK_CLIENT_SECRET
+
     code = request.GET.get('code', None)
 
     if not client_id or not client_secret or not code:
