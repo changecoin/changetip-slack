@@ -14,14 +14,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID", None)
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET", None)
-# assert SLACK_CLIENT_ID, "Need to set SLACK_CLIENT_ID to run this app"
-# assert SLACK_CLIENT_SECRET, "Need to set SLACK_CLIENT_SECRET to run this app"
+assert SLACK_CLIENT_ID, "Need to set SLACK_CLIENT_ID to run this app"
+assert SLACK_CLIENT_SECRET, "Need to set SLACK_CLIENT_SECRET to run this app"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ty9l!0q22*v(lo)9w*p#!iwbh4x3qz-1%^ixu1uz66y!bnykdv'
+SECRET_KEY = os.getenv("SECRET_KEY", 'ty9l!0q22*v(lo)9w*p#!iwbh4x3qz-1%^ixu1uz66y!bnykdv')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
