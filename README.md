@@ -2,43 +2,23 @@
 
 [ChangeTip](https://www.changetip.com) is a micropayment infrastructure for the web, enabling tips to be sent over social media. This code allows users to *tip* eachother with [slack](https://slack.com/), using the [slack api](https://api.slack.com/)
 
-![Slack Tipping](https://cdn.changetip.com/img/screenshots/slack_tip.png "Slack tipping")
+![Slack Tipping](http://i.imgur.com/aG3jO3u.png "Slack tipping")
 
 
 This repo is managed by the ChangeCoin (ChangeTip) team, but is open source for transparency and educational purposes. Pull requests welcomed!
 
 ## Tipping
-Type `changetip:` at the *beginning* of a message, then mention a @username and an amount.
+Slack tipping uses slash commands. Type `/changetip`, then mention a @username and an amount.
 
 Examples:
 
 ```
-changetip: Give @victoria $5 for paying for my lunch
+/changetip Give @victoria $5 for paying for my lunch
 ```
 
 ```
-changetip: Give @jim a high five for the great work he just did
+/changetip Give @jim a high five for the great work he just did
 ```
-In addition to tips, you can also have some fun. Try asking anything.
-
-```
-changetip: what is the answer to everything?
-```
-
-```
-changetip: are you happy?
-```
-
-Before using ChangeTip, **you will need to send a message to it so it knows who you are**. It's as simple as saying Hi.
-
-
-```
-changetip: hi!
-```
-
-ChangeTip will respond with instructions on how to hook up your ChangeTip account to slack.
-
-Note: It only works in channels, not private chats, this is because slack doesn't send data for private chats via the webhook.
 
 ## Slack setup
 
@@ -53,8 +33,6 @@ That's it! Start tipping! The bot will provide instructions with what to do. Don
 ### Support
 
 If you have any questions, or recommendations for new features, we'd like to hear from you - support@changetip.com
-
-
 
 ## Contributing
 
