@@ -62,7 +62,7 @@ export SLACK_CLIENT_SECRET=xxxx
 
 #### Running
 ```
-CHANGETIP_API_KEY=xxxx uwsgi --init uswgi.ini
+CHANGETIP_API_KEY=xxxx uwsgi --ini uwsgi.ini
 ```
 
 To get an API key, contact support@changetip.com
