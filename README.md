@@ -20,6 +20,10 @@ Examples:
 /changetip Give @jim a high five for the great work he just did
 ```
 
+#### What's new?
+
+We recently improved Slack tipping to utilize Slack slash commands! It makes tipping new users vastly less awkward, since recipients no longer have to type `changetip: accept`, and senders no longer have to resend the tip afterwards. Also, you can now tip people in private channels and direct messages!
+
 ## Slack setup
 
 To enable tipping in slack for your team, 10 seconds of setup is required. Click this button:
@@ -30,7 +34,7 @@ Select your team and authorize the request. It will ask for permission to confir
 
 That's it! Start tipping! The bot will provide instructions with what to do. Don't be scared. :)
 
-### Removing the old version of Slack tipping (outgoing webhooks)
+### Removing the old version (outgoing webhooks)
 
 Eventually, we will deprecate the outgoing webhooks integration (we're talking about the one where you say `changetip:` instead of `/changetip`).
 
@@ -57,7 +61,7 @@ $ pip install -r requirements.txt
 Register your application with Slack:
 https://api.slack.com/applications
 
-Set your Redirect URI to your local environment to enable OAuth. You will likely need to ngrok it.
+Set your Redirect URI to your local environment to enable OAuth. You will likely need to [ngrok](https://ngrok.com/) it.
 https://mylocaldevenv.io/slack/auth
 
 Set your environment variables:
