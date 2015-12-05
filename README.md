@@ -30,6 +30,12 @@ Select your team and authorize the request. It will ask for permission to confir
 
 That's it! Start tipping! The bot will provide instructions with what to do. Don't be scared. :)
 
+### Removing the old version of Slack tipping (outgoing webhooks)
+
+Eventually, we will deprecate the outgoing webhooks integration (we're talking about the one where you say `changetip:` instead of `/changetip`).
+
+If you still have the old version installed, you can remove it by navigating to `https://yourteamname.slack.com/services`. From here, delete the integration called "ChangeTip Tip Bot", and disable/remove the "changetip:" Outgoing Webhook.
+
 ### Support
 
 If you have any questions, or recommendations for new features, we'd like to hear from you - support@changetip.com
