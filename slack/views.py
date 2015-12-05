@@ -7,10 +7,12 @@ from slack.models import SlackUser
 from image_response import ImageResponse
 import cleverbot
 import json
+import random
 import re
 import requests
 
 INFO_URL = "https://www.changetip.com/tip-online/slack"
+UPGRADE_URL = "https://github.com/changecoin/changetip-slack"
 MESSAGES = {
     "help": u"""Hi {user_name}. Here's some help.
 To send a tip, mention *a person* and *an amount* like this:
@@ -29,7 +31,8 @@ Any questions? E-mail support@changetip.com
     "get_started": u"To send your first tip, login with your slack account on ChangeTip: {info_url}".format(info_url=INFO_URL),
     "unknown_receiver": u"@{user_name}, before they can receive your tip, ask them to type: *changetip: accept*",
     "out_for_delivery": u"The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
-    "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet. {img_url}"
+    "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet. {img_url}",
+    "upgrade_to_slash_commands": u" Note: Tipping with outgoing webhooks will eventually be removed. Upgrade to our newer, better Slash commands here: {}".format(UPGRADE_URL),
 }
 
 
@@ -172,6 +175,10 @@ def _outgoing_webhook(request):
         tip_data["meta"][meta_field] = request.POST.get(meta_field)
 
     out = submit_tip(tip_data)
+
+    if random.random() < .2:
+        # Every 5th message or so will encourage users to upgrade to Slash commands
+        out += MESSAGES['upgrade_to_slash_commands']
 
     return JsonResponse({"text": out})
 
