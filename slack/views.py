@@ -32,7 +32,7 @@ Any questions? E-mail support@changetip.com
     "unknown_receiver": u"@{user_name}, before they can receive your tip, ask them to type: *changetip: accept*",
     "out_for_delivery": u"The tip for {amount_display} is out for delivery. {receiver} needs to collect by connecting their ChangeTip account to slack at %s" % INFO_URL,
     "finished": u"The tip has been delivered, {amount_display} has been added to {receiver}'s ChangeTip wallet. {img_url}",
-    "upgrade_to_slash_commands": u" Note: Tipping with outgoing webhooks will eventually be removed. Upgrade to our newer, better Slash commands here: {}".format(UPGRADE_URL),
+    "upgrade_to_slash_commands": u"Note: Tipping with outgoing webhooks will eventually be removed. Upgrade to our newer, better Slash commands here: {}".format(UPGRADE_URL),
 }
 
 
@@ -126,8 +126,15 @@ def _outgoing_webhook(request):
         user_id=request.POST.get("user_id"),
     )
 
+    def formatted_response(response_text):
+        if random.random() < .2:
+            # Every 5th message or so will encourage users to upgrade to Slash commands
+            response_text += " "
+            response_text += MESSAGES['upgrade_to_slash_commands']
+        return JsonResponse({"text": response_text, "response_type": "in_channel"})
+
     if created:
-        return JsonResponse({"text": MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"]), "response_type": "in_channel"})
+        return formatted_response(MESSAGES["greeting"].format(user_name=user_name, get_started=MESSAGES["get_started"]))
 
     text = request.POST.get("text", "")
 
@@ -136,9 +143,9 @@ def _outgoing_webhook(request):
     if not mention_match:
         # Do they want help?
         if "help" in text:
-            return JsonResponse({"text": MESSAGES["help_webhooks"].format(user_name=user_name), "response_type": "in_channel"})
+            return formatted_response(MESSAGES["help_webhooks"].format(user_name=user_name))
         else:
-            return JsonResponse({"text": MESSAGES["help_webhooks"].format(user_name=user_name), "response_type": "in_channel"})
+            return formatted_response(MESSAGES["help_webhooks"].format(user_name=user_name))
             # Temporarily commenting out the following because Cleverbot now has ads
             # # Say something clever
             # response = get_clever_response(user_id, text)
@@ -147,7 +154,7 @@ def _outgoing_webhook(request):
 
     slack_receiver = SlackUser.objects.filter(team_id = slack_sender.team_id, user_id=mention_match.group(1)).first()
     if not slack_receiver:
-        return JsonResponse({"text": MESSAGES["unknown_receiver"].format(user_name=user_name), "response_type": "in_channel"})
+        return formatted_response(MESSAGES["unknown_receiver"].format(user_name=user_name))
 
     # Substitute the @username back in (for each mention)
     for at_user_id in re.findall('(<@U[A-Z0-9]+>)', text):
@@ -176,11 +183,7 @@ def _outgoing_webhook(request):
 
     out = submit_tip(tip_data)
 
-    if random.random() < .2:
-        # Every 5th message or so will encourage users to upgrade to Slash commands
-        out += MESSAGES['upgrade_to_slash_commands']
-
-    return JsonResponse({"text": out})
+    return formatted_response(out)
 
 
 def submit_tip(tip_data):
