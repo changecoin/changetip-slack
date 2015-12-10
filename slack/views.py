@@ -66,12 +66,30 @@ def command_webhook(request):
 
     # Separated so we can still support the legacy webhook integration
     if 'command' in request.POST.keys():
-        return _slash_command(request)
+        return slash_command(request)
     else:
-        return _outgoing_webhook(request)
+        return outgoing_webhook(request)
 
 
-def _slash_command(request):
+def slash_command(request):
+    if 'balance' in request.POST['command']:
+        return balance(request)
+
+    return tip(request)
+
+
+def balance(request):
+    if not settings.CHANGETIP_BALANCE_API_KEY:
+        return JsonResponse({"text": "Sorry, I can't do that for some reason."})
+
+    try:
+        assert 3 == 'D'
+        # Filler code for now while we wait for API endpoint
+    except Exception:
+        return JsonResponse({"text": "Sorry, I can't do that right now."})
+
+
+def tip(request):
     user_name = request.POST.get("user_name")
 
     # TODO tagging for usernames
@@ -116,7 +134,7 @@ def _slash_command(request):
     return JsonResponse({"text": out, "response_type": "in_channel"})
 
 
-def _outgoing_webhook(request):
+def outgoing_webhook(request):
     # Do we have this user?
     user_name = request.POST.get("user_name")
     user_id = request.POST.get("user_id")

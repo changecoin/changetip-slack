@@ -15,6 +15,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID", None)
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET", None)
 
+CHANGETIP_BALANCE_API_KEY = os.getenv("CHANGETIP_BALANCE_API_KEY", None)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
