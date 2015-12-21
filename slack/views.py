@@ -43,13 +43,17 @@ def slack_oauth(request):
     code = request.GET.get('code', None)
 
     if not client_id or not client_secret or not code:
-        return HttpResponseBadRequest("Error")
+        return HttpResponseBadRequest("Error, missing code or improperly configured")
 
     response = requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}".format(client_id, client_secret, code))
 
+    info = json.loads(response.text)
+    if "access_token" in info:
+        info['access_token'] = 'redacted'
+
     response = response.json()
     if not response['ok'] or 'access_token' not in response:
-        return HttpResponseBadRequest("Error")
+        return HttpResponseBadRequest("Error - could not obtain access token: {}".format(info))
 
     return HttpResponse("Success! You have now installed ChangeTip Slack.")
 
