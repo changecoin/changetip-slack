@@ -3,13 +3,15 @@ from django.core.cache import cache
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
-from slack.models import SlackUser
 from image_response import ImageResponse
+from slack.models import SlackUser
+from urllib import urlencode
 import cleverbot
 import json
 import random
 import re
 import requests
+
 
 INFO_URL = "https://www.changetip.com/tip-online/slack"
 UPGRADE_URL = "https://github.com/changecoin/changetip-slack"
@@ -45,7 +47,8 @@ def slack_oauth(request):
     if not client_id or not client_secret or not code:
         return HttpResponseBadRequest("Error, missing code or improperly configured")
 
-    response = requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}".format(client_id, client_secret, code))
+    response = requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}&redirect_uri={}".format(
+        client_id, client_secret, code, urlencode("https://www.changetip.com/complete/slack/")))
 
     info = json.loads(response.text)
     if "access_token" in info:
