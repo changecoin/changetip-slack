@@ -47,8 +47,8 @@ def slack_oauth(request):
     if not client_id or not client_secret or not code:
         return HttpResponseBadRequest("Error, missing code or improperly configured")
 
-    response = requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}&redirect_uri={}".format(
-        client_id, client_secret, code, urlencode("https://www.changetip.com/complete/slack/")))
+    response = requests.get("https://slack.com/api/oauth.access?client_id={}&client_secret={}&code={}&{}".format(
+        client_id, client_secret, code, urlencode({"redirect_uri": "https://bots.changetip.com/slack/auth"})))
 
     info = json.loads(response.text)
     if "access_token" in info:
