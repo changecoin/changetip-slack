@@ -109,8 +109,8 @@ def tip(request):
 
     text = request.POST.get("text", "")
 
-    # Check for mention in the format of @userId123 (only grab first)
-    mention_match = re.search('@([A-Za-z0-9]+)', text)
+    # Check for mention in the format of @userId123-_. (only grab first)
+    mention_match = re.search('@([A-Za-z0-9-_.]+)', text)
     if not mention_match:
         # Do they want help?
         if "help" in text:
