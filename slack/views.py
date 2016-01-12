@@ -2,6 +2,7 @@ from bot import SlackBot
 from django.core.cache import cache
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.shortcuts import render_to_response
 from django.views.decorators.http import require_POST
 from image_response import ImageResponse
 from slack.models import SlackUser
@@ -58,7 +59,7 @@ def slack_oauth(request):
     if not response['ok'] or 'access_token' not in response:
         return HttpResponseBadRequest("Error - could not obtain access token: {}".format(info))
 
-    return HttpResponse("Success! You have now installed ChangeTip Slack.")
+    return render_to_response('success.html')
 
 
 @require_POST
