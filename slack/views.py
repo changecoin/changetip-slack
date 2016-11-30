@@ -69,6 +69,8 @@ def command_webhook(request):
     """
     print(json.dumps(request.POST.copy(), indent=2))
 
+    return JsonResponse({"text": "ChangeTip services have been discontinued. See https://www.reddit.com/r/changetip/comments/5dn3rc/changetip_shutting_down/ Please close your account and disconnect ChangeTip from Slack."})
+
     if request.POST.get("noop"):
         return JsonResponse({"text": "Hi!"})
 
